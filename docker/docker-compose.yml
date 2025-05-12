@@ -2,13 +2,13 @@ services:
   mysql:
     container_name: bisheng-mysql
     image: mysql:8.0
-    
+
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "1234"  # 数据库密码，如果修改需要同步修改bisheng/congfig/config.yaml配置database_url的mysql连接密码
+      MYSQL_ROOT_PASSWORD: "1234" # 数据库密码，如果修改需要同步修改bisheng/congfig/config.yaml配置database_url的mysql连接密码
       MYSQL_DATABASE: bisheng
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/mysql/conf/my.cnf:/etc/mysql/my.cnf
       - ${DOCKER_VOLUME_DIRECTORY:-.}/mysql/data:/var/lib/mysql
@@ -26,7 +26,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/data/redis:/data
       - ${DOCKER_VOLUME_DIRECTORY:-.}/redis/redis.conf:/etc/redis.conf
@@ -40,11 +40,12 @@ services:
 
   office:
     container_name: bisheng-office
-    image: onlyoffice/documentserver:7.1.1
+    image: onlyoffice/documentserver:latest
+    platform: linux/arm64
     ports:
       - "8701:80"
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
       JWT_ENABLED: false
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/office/bisheng:/var/www/onlyoffice/documentserver/sdkjs-plugins/bisheng
@@ -57,18 +58,18 @@ services:
     ports:
       - "7860:7860"
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
       BS_MILVUS_CONNECTION_ARGS: '{"host":"milvus","port":"19530","user":"","password":"","secure":false}'
-      BS_MILVUS_IS_PARTITION: 'true'
-      BS_MILVUS_PARTITION_SUFFIX: '1'
-      BS_ELASTICSEARCH_URL: 'http://elasticsearch:9200'
-      BS_ELASTICSEARCH_SSL_VERIFY: '{}'  # 可根据自己部署的密码进行配置 '{"basic_auth": ("elastic", "elastic")}'
-      BS_MINIO_SCHEMA: 'false'
-      BS_MINIO_CERT_CHECK: 'false'
-      BS_MINIO_ENDPOINT: 'minio:9000'
-      BS_MINIO_SHAREPOIN: 'minio:9000'
-      BS_MINIO_ACCESS_KEY: 'minioadmin'
-      BS_MINIO_SECRET_KEY: 'minioadmin'
+      BS_MILVUS_IS_PARTITION: "true"
+      BS_MILVUS_PARTITION_SUFFIX: "1"
+      BS_ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      BS_ELASTICSEARCH_SSL_VERIFY: "{}" # 可根据自己部署的密码进行配置 '{"basic_auth": ("elastic", "elastic")}'
+      BS_MINIO_SCHEMA: "false"
+      BS_MINIO_CERT_CHECK: "false"
+      BS_MINIO_ENDPOINT: "minio:9000"
+      BS_MINIO_SHAREPOIN: "minio:9000"
+      BS_MINIO_ACCESS_KEY: "minioadmin"
+      BS_MINIO_SECRET_KEY: "minioadmin"
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/bisheng/config/config.yaml:/app/bisheng/config.yaml
       - ${DOCKER_VOLUME_DIRECTORY:-.}/bisheng/entrypoint.sh:/app/entrypoint.sh
@@ -97,7 +98,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${DOCKER_VOLUME_DIRECTORY:-.}/nginx/conf.d:/etc/nginx/conf.d
@@ -113,7 +114,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/data/es:/bitnami/elasticsearch/data
     restart: on-failure
@@ -126,7 +127,7 @@ services:
       ETCD_AUTO_COMPACTION_RETENTION: "1000"
       ETCD_QUOTA_BACKEND_BYTES: "4294967296"
       ETCD_SNAPSHOT_COUNT: "50000"
-      TZ: Asia/Shanghai
+      TZ: Asia/Tokyo
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/data/milvus-etcd:/etcd
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
@@ -162,7 +163,7 @@ services:
     image: milvusdb/milvus:v2.3.3
     command: ["milvus", "run", "standalone"]
     security_opt:
-    - seccomp:unconfined
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
